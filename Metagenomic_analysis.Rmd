@@ -1,0 +1,411 @@
+---
+title: "Metagenomic_analysis"
+author: "Sergio Rodriguez Llana"
+date: "7/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bray-Curtis dissimilarity matrix analysis (SIMKA)
+
+Analysis done to the Bray-Curtis dissimilarity matrix resulting using the program **SIMKA**. 
+
+Loading Vegan package:
+
+```{r vegan, echo=FALSE}
+library(vegan)
+```
+
+Loading the abundance Bray-Curtis matrix.
+**Note**: The sample names have been changed from the original in order to interpret them better.
+
+I loaded the matrix twice to set the matrix correctly with the appropiate row names corresponding to the samples (otherwise I get an error).
+
+```{r braycurtis_mtx, echo=FALSE}
+simka_tab <- read.table(file = "mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";")
+names <- colnames(simka_tab)
+simka_tab <- read.table(file = "mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";", row.names = names[2:51])
+simka_tab$X <- NULL
+head(simka_tab, 10)
+```
+
+### NMDS
+
+```{r simka_nmds}
+simka_nmds <- monoMDS(simka_tab)
+simka_nmds
+plot(simka_nmds)
+stressplot(simka_nmds)
+```
+
+### UPGMA
+
+Dendogram generated using UPGMA clustering algorithm:
+
+```{r simka_hclust}
+simka_dis.mtx <- as.dist(simka_tab)
+simka_hclust <- hclust(simka_dis.mtx, method = "average")
+plot(simka_hclust, main = "SIMKA dendogram")
+```
+
+
+### Heatmap
+
+
+```{r simka_heatmap}
+simka_mtx <- as.matrix(simka_tab)
+simka_dendo <- as.dendrogram(simka_hclust)
+heatmap(simka_mtx, Rowv = simka_dendo, Colv = "Rowv", symm = TRUE, main = "SIMKA heatmap")
+```
+
+***
+
+## Function abundance tables
+
+Computation for Bray-Curtis dissimilarity matrices for GO, GO-slim and Interpro (IPR) abundance tables.
+
+### GO dissimilarity matrix
+
+```{r GO_table}
+GO_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_GO_abundances_v4.1.tsv",
+                       header = TRUE, sep = "\t", row.names = 1)
+GO_table$description <- NULL
+GO_table$category <- NULL
+GO_ttable <- t(GO_table)
+GO_ttable <- as.data.frame(GO_ttable)
+head(GO_ttable, 10)
+GO_ttable <- as.matrix(GO_ttable)
+
+#Generating the dissimilarity matrix
+GO_bray_dist <- vegdist(GO_ttable, method = "bray")
+head(as.matrix(GO_bray_dist), 5)
+```
+
+### GO UPGMA
+
+```{r GO_hclust}
+GO_bray_hclust <- hclust(GO_bray_dist, method = "average")
+plot(GO_bray_hclust, main = "GO dendogram")
+```
+
+### GO Heatmap
+
+```{r GO_heatmap}
+GO_bray_mtx <- as.matrix(GO_bray_dist)
+GO_bray_dendo <- as.dendrogram(GO_bray_hclust)
+heatmap(GO_bray_mtx, Rowv = GO_bray_dendo, Colv = "Rowv", symm = TRUE, main = "GO heatmap")
+```
+
+
+### GO-slim dissimilarity matrix
+
+```{r GOslim_table}
+GOslim_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_GO-slim_abundances_v4.1.tsv",
+                       header = TRUE, sep = "\t", row.names = 1)
+GOslim_table$description <- NULL
+GOslim_table$category <- NULL
+GOslim_ttable <- t(GOslim_table)
+GOslim_ttable <- as.data.frame(GOslim_ttable)
+head(GOslim_ttable, 10)
+GOslim_ttable <- as.matrix(GOslim_ttable)
+
+#Generating the dissimilarity matrix
+GOslim_bray_dist <- vegdist(GOslim_ttable, method = "bray")
+head(as.matrix(GOslim_bray_dist), 5)
+```
+
+
+### GO-slim UPGMA
+
+```{r GOslim_hclust}
+GOslim_bray_hclust <- hclust(GOslim_bray_dist, method = "average")
+plot(GOslim_bray_hclust, main = "GO-slim dendogram")
+```
+
+
+### GO-slim heatmap
+
+```{r GOslim_heatmap}
+GOslim_bray_mtx <- as.matrix(GOslim_bray_dist)
+GOslim_bray_dendo <- as.dendrogram(GOslim_bray_hclust)
+heatmap(GOslim_bray_mtx, Rowv = GOslim_bray_dendo, Colv = "Rowv", symm = TRUE, main = "GO-slim heatmap")
+```
+
+
+### Interpro dissimilarity matrix
+
+
+```{r IPR_table}
+IPR_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_IPR_abundances_v4.1.tsv",
+                       header = TRUE, sep = "\t", row.names = 1)
+IPR_table$description <- NULL
+IPR_ttable <- t(IPR_table)
+IPR_ttable <- as.data.frame(IPR_ttable)
+head(IPR_ttable, 10)
+IPR_ttable <- as.matrix(IPR_ttable)
+
+#Generating the dissimilarity matrix
+IPR_bray_dist <- vegdist(IPR_ttable, method = "bray")
+head(as.matrix(IPR_bray_dist), 5)
+```
+
+
+### Interpro UPGMA
+
+
+```{r IPR_hclust}
+IPR_bray_hclust <- hclust(IPR_bray_dist, method = "average")
+plot(IPR_bray_hclust, main = "IPR dendogram")
+```
+
+
+### Interpro heatmap
+
+
+```{r IPR_heatmap}
+IPR_bray_mtx <- as.matrix(IPR_bray_dist)
+IPR_bray_dendo <- as.dendrogram(IPR_bray_hclust)
+heatmap(IPR_bray_mtx, Rowv = IPR_bray_dendo, Colv = "Rowv", symm = TRUE, main = "IPR heatmap")
+```
+
+
+***
+
+
+## Analysis of Bray-Curtis matrices for the GO abundace table with and without subsampling
+
+
+Bray-Curtis matrices for the GO table table done without subsampling and subsampling:
+
+- No subsampling (NS)
+- Subsampling: Minimum sum of row values (SS_MIN)
+- Subsampling: Mean sum of row values (SS_MEAN)
+
+
+The NS dissimilarity matrix is already generated at this point ('GO_bray_dist').
+
+
+### Generating SS_MIN and SS_MEAN distance dissimilarity matrices
+
+
+In addition to the distance matrices, the dendograms (UPGMA) and heatmaps are also included.
+
+
+```{r ss_min}
+print(paste("Minimum number of reads =", min(rowSums(GO_ttable))))
+GO_table_ss_min <- rrarefy(GO_ttable, 22506)
+
+#Obtain a Bray Curtis dissimilarity matrix:
+GO_ss_min_bray_dist <- vegdist(GO_table_ss_min, method = "bray")
+
+#hclust UPGMA
+GO_ss_min_hclust <- hclust(GO_ss_min_bray_dist, method = "average")
+plot(GO_ss_min_hclust, main = "SS_MIN dendogram")
+
+#Heatmap
+GO_ss_min_bray_mtx <- as.matrix(GO_ss_min_bray_dist)
+GO_ss_min_dendo <- as.dendrogram(GO_ss_min_hclust)
+heatmap(GO_ss_min_bray_mtx, Rowv = GO_ss_min_dendo, Colv = "Rowv", symm = TRUE, main = "SS_MIN heatmap")
+```
+
+
+```{r ss_mean}
+print(paste("Mean number of reads =", mean(rowSums(GO_ttable))))
+GO_table_ss_mean <- rrarefy(GO_ttable, 361135)
+
+#Obtain a Bray Curtis dissimilarity matrix:
+GO_ss_mean_bray_dist <- vegdist(GO_table_ss_mean, method = "bray")
+
+#hclust UPGMA
+GO_ss_mean_hclust <- hclust(GO_ss_mean_bray_dist, method = "average")
+plot(GO_ss_mean_hclust, main = "SS_mean dendogram")
+
+#Heatmap
+GO_ss_mean_bray_mtx <- as.matrix(GO_ss_mean_bray_dist)
+GO_ss_mean_dendo <- as.dendrogram(GO_ss_mean_hclust)
+heatmap(GO_ss_mean_bray_mtx, Rowv = GO_ss_mean_dendo, Colv = "Rowv", symm = TRUE, main = "SS_MEAN heatmap")
+```
+
+
+
+### Mantel Tests for dissimilarity matrices
+
+
+```{r mantel_tests}
+plot(GO_ss_min_bray_dist, GO_bray_dist, main = "SS_MIN vs NS")
+abline(0,1)
+mantel(GO_ss_min_bray_dist, GO_bray_dist)
+
+plot(GO_ss_mean_bray_dist, GO_bray_dist, main = "SS_MEAN vs NS")
+abline(0,1)
+mantel(GO_ss_mean_bray_dist, GO_bray_dist)
+
+plot(GO_ss_min_bray_dist, GO_ss_mean_bray_dist, main = "SS_MIN vs SS_MEAN")
+abline(0,1)
+mantel(GO_ss_min_bray_dist, GO_ss_mean_bray_dist)
+
+plot(GO_ss_min_bray_dist, simka_dis.mtx, main = "SS_MIN vs SIMKA")
+abline(0,1)
+mantel(GO_ss_min_bray_dist, simka_dis.mtx)
+
+plot(GO_ss_mean_bray_dist, simka_dis.mtx, main = "SS_MEAN vs SIMKA")
+abline(0,1)
+mantel(GO_ss_mean_bray_dist, simka_dis.mtx)
+
+plot(GO_bray_dist, simka_dis.mtx, main = "NS vs SIMKA")
+abline(0,1)
+mantel(GO_bray_dist, simka_dis.mtx)
+```
+
+**Good correlation between the GO dissimilarity matrices, although there is a lot of dispersion in the plots**
+**Bad correation between SIMKA and GO dissimilarity matrices**
+
+
+### NMDS
+
+
+```{r nmds}
+GO_ns_bray_nmds <- monoMDS(GO_bray_dist)
+plot(GO_ns_bray_nmds, main = "NS NMDS")
+GO_ss_min_bray_nmds <- monoMDS(GO_ss_min_bray_dist)
+plot(GO_ss_min_bray_nmds, main = "SS_MIN NMDS")
+GO_ss_mean_bray_nmds <- monoMDS(GO_ss_mean_bray_dist)
+plot(GO_ss_mean_bray_nmds, main = "SS_MEAN NMDS")
+plot(simka_nmds, main = "SIMKA NMDS")
+```
+
+
+**We cannot form clear sample clusters of the GO dis. matrices**
+
+
+
+### ANOSIM NS
+
+
+Function to reorder the rows and columns of a symmetric matrix (from package 'graph4lg'):
+
+
+```{r reorder_mat}
+reorder_mat <- function(mat, order){
+  
+  # Number of elements in the vector 'order'
+  n <- length(order)
+  
+  # Check whether 'mat' is a 'matrix'
+  if(!inherits(mat, "matrix")){
+    stop("'mat' must be a matrix")
+    # Check whether 'order' is of class 'character'
+  } else if (!inherits(order, "character")){
+    stop("'order' must be a character vector")
+    # Check whether 'mat' is a symmetric matrix
+  } else if(!(isSymmetric(mat))){
+    stop("The matrix 'mat' must be symmetric")
+    # Check whether 'order' has as many elements as there are rows
+    # and columns in 'mat'
+  } else if (n != length(colnames(mat))){
+    stop("'order' must have as many elements as there are rows and
+         columns in 'mat'")
+    # Check whether the column names are in the 'order' vector
+  } else if(length(which(colnames(mat) %in% order)) != n){
+    stop("The column names of the matrix you want to reorder must
+         be present in the vector 'order'")
+    # Check whether the row names are in the 'order' vector
+  } else if (length(which(row.names(mat) %in% order)) != n){
+    print("The row names of the matrix you want to reorder must
+          be present in the vector 'order'")
+  } else {
+    
+    # Reorder 'mat' according to 'order'
+    mat2 <- mat[order, order]
+    
+    return(mat2)
+  }
+}
+```
+
+
+Generating the grups (clusters) and reordering the symmetric matrix (dis. matrix):
+
+
+```{r ns_groups}
+GO_ns_samples <- c("D1_S023_100L.m_R01", "D1_S320_716L.m_R00", "D1_S02_1L.s_R01", "D1_S02_10L.s_R03",
+                   "D1_S023_10L.m_R01", "D1_S023_100L.m_R02", "D1_S02_10L.s_R01", "D1_S02_2.5L.s_R01.4",
+                   "D1_S02_1L.s_R02", "D1_S02_2.5L.s_R01.2", "D1_S023_100L.m_R03", "D1_S023_60L.m_R01",
+                   "D1_S023_60L.m_R03", "D1_S023_716L.m_R00", "D1_S023_496L.m_R00", "D1_S02_10L.m_R03",
+                   "D1_S023_100L.m_R02.1", "D2_S023_100L.m_R11", "D1_S20_100L.m_R03", "D1_S20_496L.m_R00",
+                   "D1_S20_776L.m_R00", "D1_S20_120L.m_R01", "D1_S320_100L.m_R02", "D1_S02_10L.m_R01",
+                   "D1_S320_100L.m_R02.1", "D2_S023_1000L.m_R00", "D1_S320_100L.m_R03", "D1_S02_1L.s_R03",
+                   "D1_S023_10L.m_R03", "D1_S02_10L.s_R02", "D1_S320_60L.m_R01", "D1_S02_2.5L.s_R01.3",
+                   "D1_S02_2.5L.s_R01.1", "D1_S023_10L.m_R02", "D1_S320_60L.m_R03", "D2_S320_1000L.m_R00",
+                   "D1_S02_10L.m_R02", "D2_S320_100L.m_R11", "D1_S320_496L.m_R00", "D1_S320_100L.m_R01",
+                   "D1_S20_100L.m_R02", "D1_S20_100L.m_R01", "D1_S320_10L.m_R01", "D1_S320_10L.m_R02",
+                   "D1_S20_60L.m_R03", "D2_S20_100L.m_R11", "D2_S20_1000L.m_R00", "D1_S320_10L.m_R03",
+                   "D1_S20_30L.m_R123", "D1_S20_100L.m_R02.1")
+
+GO_ns_groups <- c(rep("A", 13), rep("B", 5), rep("C", 3), rep("D", 4), rep("E", 4), rep("F", 5), rep("G", 6), rep("H", 2), rep("I", 2), rep("J", 3), rep("K", 3))
+
+GO_ns_GroupedSamples <- data.frame(GO_ns_samples, GO_ns_groups, row.names = 1)
+
+GO_bray_mtx_reordered <- reorder_mat(GO_bray_mtx, GO_ns_samples)
+
+```
+
+
+ANOSIM Test:
+
+
+```{r ns_anosim}
+GO_ns_anosim <- anosim(GO_bray_mtx_reordered, GO_ns_GroupedSamples$GO_ns_groups, permutations = 999, distance = "bray", levels(GO_ns_GroupedSamples$GO_ns_groups))
+par(cex=1, mar=c(5, 5, 5, 5))
+plot(GO_ns_anosim, main="NS ANOSIM")
+summary(GO_ns_anosim) #ANOSIM significant
+```
+
+
+**ANOSIM significant**
+
+
+### ANOSIM SIMKA
+
+
+Generating the grups (clusters) and reordering the symmetric matrix (dis. matrix):
+
+
+```{r simka_groups}
+Simka_samples <- c("D1_S20_100L.m_R02.1", "D2_S20_1000L.m_R00", "D2_S20_100L.m_R11", "D1_S20_30L.m_R123",
+                   "D1_S20_776L.m_R00", "D1_S20_60L.m_R03", "D1_S20_100L.m_R02", "D1_S20_496L.m_R00",
+                   "D1_S20_100L.m_R01", "D1_S20_120L.m_R01", "D1_S20_100L.m_R03", "D2_S320_1000L.m_R00",
+                   "D2_S320_100L.m_R11", "D1_S320_496L.m_R00", "D1_S02_10L.m_R01", "D1_S02_10L.m_R02",
+                   "D1_S023_10L.m_R03", "D1_S02_2.5L.s_R01.1", "D1_S02_2.5L.s_R01.3", "D1_S02_10L.s_R02",
+                   "D1_S023_10L.m_R02", "D1_S02_1L.s_R03", "D1_S02_10L.s_R03", "D1_S02_1L.s_R01",
+                   "D1_S02_2.5L.s_R01.4", "D1_S02_10L.s_R01", "D1_S02_1L.s_R02", "D1_S02_2.5L.s_R01.2",
+                   "D2_S023_1000L.m_R00", "D2_S023_100L.m_R11", "D1_S02_10L.m_R03", "D1_S023_100L.m_R01",
+                   "D1_S023_716L.m_R00", "D1_S023_60L.m_R01", "D1_S023_10L.m_R01", "D1_S023_496L.m_R00",
+                   "D1_S023_100L.m_R02.1", "D1_S023_100L.m_R03", "D1_S023_100L.m_R02", "D1_S023_60L.m_R03",
+                   "D1_S320_716L.m_R00", "D1_S320_60L.m_R03", "D1_S320_60L.m_R01", "D1_S320_100L.m_R03",
+                   "D1_S320_100L.m_R02", "D1_S320_100L.m_R01", "D1_S320_100L.m_R02.1", "D1_S320_10L.m_R03",
+                   "D1_S320_10L.m_R01", "D1_S320_10L.m_R02")
+
+simka_mtx_reordered <- reorder_mat(simka_mtx, Simka_samples)
+
+Simka_groups <- c(rep("A", 11), rep("B", 2), rep("C", 1), rep("D", 1), rep("E", 25), rep("F", 4), rep("G", 3), rep("H", 3))
+
+Simka_GroupedSamples <- data.frame(Simka_samples, Simka_groups, row.names = 1)
+```
+
+
+ANOSIM Test:
+
+
+```{r simka_anosim}
+Simka_anosim <- anosim(simka_mtx_reordered, Simka_GroupedSamples$Simka_groups, permutations = 999, distance = "bray", levels(Simka_GroupedSamples$Simka_groups))
+par(cex=1, mar=c(5, 5, 5, 5))
+plot(Simka_anosim, main="SIMKA ANOSIM")
+summary(Simka_anosim) #ANOSIM significant
+```
+
+
+**ANOSIM significant**
