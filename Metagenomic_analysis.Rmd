@@ -2,7 +2,9 @@
 title: "Metagenomic_analysis"
 author: "Sergio Rodriguez Llana"
 date: "7/20/2020"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +17,7 @@ Analysis done to the Bray-Curtis dissimilarity matrix resulting using the progra
 
 Loading Vegan package:
 
-```{r vegan, echo=FALSE}
+```{r vegan}
 library(vegan)
 ```
 
@@ -29,7 +31,7 @@ simka_tab <- read.table(file = "mat_abundance_braycurtis_labels.csv", header = T
 names <- colnames(simka_tab)
 simka_tab <- read.table(file = "mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";", row.names = names[2:51])
 simka_tab$X <- NULL
-head(simka_tab, 10)
+#head(simka_tab, 10)
 ```
 
 ### NMDS
@@ -76,12 +78,12 @@ GO_table$description <- NULL
 GO_table$category <- NULL
 GO_ttable <- t(GO_table)
 GO_ttable <- as.data.frame(GO_ttable)
-head(GO_ttable, 10)
+#head(GO_ttable, 10)
 GO_ttable <- as.matrix(GO_ttable)
 
 #Generating the dissimilarity matrix
 GO_bray_dist <- vegdist(GO_ttable, method = "bray")
-head(as.matrix(GO_bray_dist), 5)
+#head(as.matrix(GO_bray_dist), 5)
 ```
 
 ### GO UPGMA
@@ -109,12 +111,12 @@ GOslim_table$description <- NULL
 GOslim_table$category <- NULL
 GOslim_ttable <- t(GOslim_table)
 GOslim_ttable <- as.data.frame(GOslim_ttable)
-head(GOslim_ttable, 10)
+#head(GOslim_ttable, 10)
 GOslim_ttable <- as.matrix(GOslim_ttable)
 
 #Generating the dissimilarity matrix
 GOslim_bray_dist <- vegdist(GOslim_ttable, method = "bray")
-head(as.matrix(GOslim_bray_dist), 5)
+#head(as.matrix(GOslim_bray_dist), 5)
 ```
 
 
@@ -144,12 +146,12 @@ IPR_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_IPR_
 IPR_table$description <- NULL
 IPR_ttable <- t(IPR_table)
 IPR_ttable <- as.data.frame(IPR_ttable)
-head(IPR_ttable, 10)
+#head(IPR_ttable, 10)
 IPR_ttable <- as.matrix(IPR_ttable)
 
 #Generating the dissimilarity matrix
 IPR_bray_dist <- vegdist(IPR_ttable, method = "bray")
-head(as.matrix(IPR_bray_dist), 5)
+#head(as.matrix(IPR_bray_dist), 5)
 ```
 
 
