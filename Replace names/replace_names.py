@@ -28,8 +28,10 @@ for i in dic:
 '''
 
 with open(sys.argv[2]) as f:
+    line = f.readline().strip()
+    for ele in dic:
+        if ele in line:
+            line = re.sub(ele, dic[ele], line)
+    print(line)
     for line in f:
-        for ele in dic:
-            if ele in line:
-                line = re.sub(ele, dic[ele], line)
-        print(line)
+        print(line.strip())
