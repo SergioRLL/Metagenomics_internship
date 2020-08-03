@@ -27,9 +27,9 @@ Loading the abundance Bray-Curtis matrix.
 I loaded the matrix twice to set the matrix correctly with the appropiate row names corresponding to the samples (otherwise I get an error).
 
 ```{r braycurtis_mtx, echo=FALSE}
-simka_tab <- read.table(file = "mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";")
+simka_tab <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";")
 names <- colnames(simka_tab)
-simka_tab <- read.table(file = "mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";", row.names = names[2:51])
+simka_tab <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/mat_abundance_braycurtis_labels.csv", header = TRUE, sep = ";", row.names = names[2:51])
 simka_tab$X <- NULL
 #head(simka_tab, 10)
 ```
@@ -72,14 +72,14 @@ Computation for Bray-Curtis dissimilarity matrices for GO, GO-slim and Interpro 
 ### GO dissimilarity matrix
 
 ```{r GO_table}
-GO_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_GO_abundances_v4.1.tsv",
+GO_table <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/ERP112966_GO_abundances_v4.1.tsv",
                        header = TRUE, sep = "\t", row.names = 1)
 GO_table$description <- NULL
 GO_table$category <- NULL
 GO_ttable <- t(GO_table)
-GO_ttable <- as.data.frame(GO_ttable)
+#GO_ttable <- as.data.frame(GO_ttable)
 #head(GO_ttable, 10)
-GO_ttable <- as.matrix(GO_ttable)
+#GO_ttable <- as.matrix(GO_ttable)
 
 #Generating the dissimilarity matrix
 GO_bray_dist <- vegdist(GO_ttable, method = "bray")
@@ -105,7 +105,7 @@ heatmap(GO_bray_mtx, Rowv = GO_bray_dendo, Colv = "Rowv", symm = TRUE, main = "G
 ### GO-slim dissimilarity matrix
 
 ```{r GOslim_table}
-GOslim_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_GO-slim_abundances_v4.1.tsv",
+GOslim_table <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/ERP112966_GO-slim_abundances_v4.1.tsv",
                        header = TRUE, sep = "\t", row.names = 1)
 GOslim_table$description <- NULL
 GOslim_table$category <- NULL
@@ -141,7 +141,7 @@ heatmap(GOslim_bray_mtx, Rowv = GOslim_bray_dendo, Colv = "Rowv", symm = TRUE, m
 
 
 ```{r IPR_table}
-IPR_table <- read.table(file = "/home/sergio/Desktop/Internship/R/ERP112966_IPR_abundances_v4.1.tsv",
+IPR_table <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/ERP112966_IPR_abundances_v4.1.tsv",
                        header = TRUE, sep = "\t", row.names = 1)
 IPR_table$description <- NULL
 IPR_ttable <- t(IPR_table)
@@ -360,7 +360,7 @@ ANOSIM Test:
 
 
 ```{r ns_anosim}
-GO_ns_anosim <- anosim(GO_bray_mtx_reordered, GO_ns_GroupedSamples$GO_ns_groups, permutations = 999, distance = "bray", levels(GO_ns_GroupedSamples$GO_ns_groups))
+GO_ns_anosim <- anosim(GO_bray_mtx_reordered, GO_ns_GroupedSamples$GO_ns_groups, permutations = 999, distance = "bray", NULL)
 par(cex=1, mar=c(5, 5, 5, 5))
 plot(GO_ns_anosim, main="NS ANOSIM")
 summary(GO_ns_anosim) #ANOSIM significant
@@ -403,7 +403,7 @@ ANOSIM Test:
 
 
 ```{r simka_anosim}
-Simka_anosim <- anosim(simka_mtx_reordered, Simka_GroupedSamples$Simka_groups, permutations = 999, distance = "bray", levels(Simka_GroupedSamples$Simka_groups))
+Simka_anosim <- anosim(simka_mtx_reordered, Simka_GroupedSamples$Simka_groups, permutations = 999, distance = "bray", NULL)
 par(cex=1, mar=c(5, 5, 5, 5))
 plot(Simka_anosim, main="SIMKA ANOSIM")
 summary(Simka_anosim) #ANOSIM significant
@@ -411,3 +411,301 @@ summary(Simka_anosim) #ANOSIM significant
 
 
 **ANOSIM significant**
+
+
+##Gene tables analysis
+
+
+Tables:
+
+- EMOSE-GC_gene_lengthNorm_counts.tbl
+- EMOSE-GC_gene_lengthNorm_SingleCopyGeneNorm_counts.tbl
+- EMOSE-GC_gene.lengthNorm.metaGsizeGbNorm.counts.tbl
+- EMOSE-GC_gene_TPM.tbl
+
+
+###Reading the gene length normalized table:
+
+```{r gene_lnorm_cts_table}
+gene_lnorm_cts <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene_lengthNorm_counts.tbl", header = TRUE, sep = "\t")
+
+gene_lnorm_cts_t <- t(gene_lnorm_cts)
+```
+
+
+###Creating the Bray-Curtis dissimilarity matrix
+
+```{r gene_lnorm_cts_bray}
+gene_lnorm_cts_bray <- vegdist(gene_lnorm_cts_t, method = "bray")
+```
+
+
+###UPGMA dendogram
+
+```{r gene_lnorm_cts_hclust}
+gene_lnorm_cts_hclust <- hclust(gene_lnorm_cts_bray, method = "average")
+plot(gene_lnorm_cts_hclust, main = "GeneLengthNorm")
+```
+
+###Heatmap
+
+```{r gene_lnorm_cts_heatmap}
+heatmap(as.matrix(gene_lnorm_cts_bray), Rowv = as.dendrogram(gene_lnorm_cts_hclust), Colv = "Rowv", symm = TRUE, 
+        main = "GeneLengthNorm")
+```
+
+
+###Reading the gene length + SCG (Single Copy Genes) normalized table
+
+```{r}
+gene_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene_lengthNorm_SingleCopyGeneNorm_counts.tbl", header = TRUE, sep = "\t")
+
+gene_scg_t <- t(gene_scg)
+```
+
+###Creating the Bray-Curtis dissimilarity matrix
+
+```{r gene_scg_bray}
+gene_scg_bray <- vegdist(gene_scg_t, method = "bray")
+```
+
+
+###UPGMA dendogram
+
+```{r gene_scg_hclust}
+gene_scg_hclust <- hclust(gene_scg_bray, method = "average")
+plot(gene_scg_hclust, main = "SCG")
+```
+
+###Heatmap
+
+```{r gene_scg_heatmap}
+heatmap(as.matrix(gene_scg_bray), Rowv = as.dendrogram(gene_scg_hclust), Colv = "Rowv", symm = TRUE, 
+        main = "SCG")
+```
+
+
+###Reading the gene length + metagenome size normalized table
+
+```{r}
+gene_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene.lengthNorm.metaGsizeGbNorm.counts.tbl", header = TRUE, sep = "\t")
+
+gene_metaGsize_t <- t(gene_metaGsize)
+```
+
+###Creating the Bray-Curtis dissimilarity matrix
+
+```{r gene_metaGsize_bray}
+gene_metaGsize_bray <- vegdist(gene_metaGsize_t, method = "bray")
+```
+
+
+###UPGMA dendogram
+
+```{r gene_metaGsize_hclust}
+gene_metaGsize_hclust <- hclust(gene_metaGsize_bray, method = "average")
+plot(gene_metaGsize_hclust, main = "metaGsize")
+```
+
+###Heatmap
+
+```{r gene_metaGsize_heatmap}
+heatmap(as.matrix(gene_metaGsize_bray), Rowv = as.dendrogram(gene_metaGsize_hclust), Colv = "Rowv", symm = TRUE, 
+        main = "metaGsize")
+```
+
+
+###Reading the gene TPM normalized table
+
+```{r}
+gene_tpm <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene_TPM.tbl", header = TRUE, sep = "\t")
+
+gene_tpm_t <- t(gene_tpm)
+```
+
+###Creating the Bray-Curtis dissimilarity matrix
+
+```{r gene_tpm_bray}
+gene_tpm_bray <- vegdist(gene_tpm_t, method = "bray")
+```
+
+
+###UPGMA dendogram
+
+```{r gene_tpm_hclust}
+gene_tpm_hclust <- hclust(gene_tpm_bray, method = "average")
+plot(gene_tpm_hclust, main = "TPM")
+```
+
+###Heatmap
+
+```{r gene_tpm_heatmap}
+heatmap(as.matrix(gene_tpm_bray), Rowv = as.dendrogram(gene_tpm_hclust), Colv = "Rowv", symm = TRUE, 
+        main = "TPM")
+```
+
+###Mantel tests for the gene dissimilarity matrices
+
+
+```{r gene_mantel_tests}
+plot(gene_lnorm_cts_bray, gene_metaGsize_bray, main = "LNorm vs metaGsize")
+abline(0,1)
+mantel(gene_lnorm_cts_bray, gene_metaGsize_bray)
+
+plot(gene_lnorm_cts_bray, gene_scg_bray, main = "LNorm vs SCG")
+abline(0,1)
+mantel(gene_lnorm_cts_bray, gene_scg_bray)
+
+plot(gene_lnorm_cts_bray, gene_tpm_bray, main = "LNorm vs TPM")
+abline(0,1)
+mantel(gene_lnorm_cts_bray, gene_tpm_bray)
+
+plot(gene_metaGsize_bray, gene_scg_bray, main = "metaGsize vs SCG")
+abline(0,1)
+mantel(gene_metaGsize_bray, gene_scg_bray)
+
+plot(gene_metaGsize_bray, gene_tpm_bray, main = "metaGsize vs TPM")
+abline(0,1)
+mantel(gene_metaGsize_bray, gene_tpm_bray)
+
+plot(gene_scg_bray, gene_tpm_bray, main = "SCG vs TPM")
+abline(0,1)
+mantel(gene_scg_bray, gene_tpm_bray)
+```
+
+**Observations**: Good correlation between gene distance matrices.
+
+###NMDS
+
+
+```{r gene_nmds}
+gene_lnorm_nmds <- monoMDS(gene_lnorm_cts_bray)
+gene_lnorm_nmds
+plot(gene_lnorm_nmds, main = "LNorm NMDS")
+
+gene_metaGsize_nmds <- monoMDS(gene_metaGsize_bray)
+gene_metaGsize_nmds
+plot(gene_metaGsize_nmds, main = "metaGsize NMDS")
+
+gene_scg_nmds <- monoMDS(gene_scg_bray)
+gene_scg_nmds
+plot(gene_scg_nmds, main = "SCG NMDS")
+
+gene_tpm_nmds <- monoMDS(gene_tpm_bray)
+gene_tpm_nmds
+plot(gene_tpm_nmds, main = "TPM NMDS")
+```
+
+
+##miTags table (rRNA extracted from the metagenomes)
+
+
+Table basted on 16S and 18S gene marker.
+
+
+###Reading the miTags table and making the Bray-Curtis dissimilaity matrix
+
+```{r read_mitags}
+mitags <- read.table(file = "/home/srllana/R/Tables/EMOSE_mitags_table97.txt", header = TRUE, sep = "\t", row.names = 1)
+mitags_t <- t(mitags)
+mitags_bray <- vegdist(mitags_t, method = "bray")
+```
+
+###UPGMA dendogram
+
+
+```{r mitags_hclust}
+mitags_hclust <- hclust(mitags_bray, method = "average")
+plot(mitags_hclust, main = "miTags dendogram")
+```
+
+
+###Heatmap
+
+
+```{r mitags_heatmap}
+heatmap(as.matrix(mitags_bray), Rowv = as.dendrogram(mitags_hclust), Colv = "Rowv", symm = TRUE, 
+        main = "miTags heatmap")
+```
+
+###NMDS
+
+```{r mitags_nmds}
+mitags_nmds <- monoMDS(mitags_bray)
+mitags_nmds
+plot(mitags_nmds, main = "miTags NMDS")
+```
+
+
+##Mantel tests Gene and Function Matrices VS Simka and Taxonomy Matrices
+
+
+```{r mantel_tests_all}
+#Gene VS Simka matrices:
+plot(gene_lnorm_cts_bray, simka_dis.mtx, main = "LNorm vs SIMKA")
+abline(0,1)
+mantel(gene_lnorm_cts_bray, simka_dis.mtx)
+
+plot(gene_metaGsize_bray, simka_dis.mtx, main = "metaGsize vs SIMKA")
+abline(0,1)
+mantel(gene_metaGsize_bray, simka_dis.mtx)
+
+plot(gene_scg_bray, simka_dis.mtx, main = "SCG vs SIMKA")
+abline(0,1)
+mantel(gene_scg_bray, simka_dis.mtx)
+
+plot(gene_tpm_bray, simka_dis.mtx, main = "TPM vs SIMKA")
+abline(0,1)
+mantel(gene_tpm_bray, simka_dis.mtx)
+
+#Gene VS Taxonomy matrices:
+plot(gene_lnorm_cts_bray, mitags_bray, main = "LNorm vs miTags")
+abline(0,1)
+mantel(gene_lnorm_cts_bray, mitags_bray)
+
+plot(gene_metaGsize_bray, mitags_bray, main = "metaGsize vs miTags")
+abline(0,1)
+mantel(gene_metaGsize_bray, mitags_bray)
+
+plot(gene_scg_bray, mitags_bray, main = "SCG vs miTags")
+abline(0,1)
+mantel(gene_scg_bray, mitags_bray)
+
+plot(gene_tpm_bray, mitags_bray, main = "TPM vs miTags")
+abline(0,1)
+mantel(gene_tpm_bray, mitags_bray)
+
+#Function VS Simka matrices:
+plot(GO_bray_dist, simka_dis.mtx, main = "GO vs SIMKA")
+abline(0,1)
+mantel(GO_bray_dist, simka_dis.mtx)
+
+plot(GOslim_bray_dist, simka_dis.mtx, main = "GO-slim vs SIMKA")
+abline(0,1)
+mantel(GOslim_bray_dist, simka_dis.mtx)
+
+plot(IPR_bray_dist, simka_dis.mtx, main = "IPR vs SIMKA")
+abline(0,1)
+mantel(IPR_bray_dist, simka_dis.mtx)
+
+#Function VS Taxonomy matrices:
+plot(GO_bray_dist, mitags_bray, main = "GO vs miTags")
+abline(0,1)
+mantel(GO_bray_dist, mitags_bray)
+
+plot(GOslim_bray_dist, mitags_bray, main = "GO-slim vs miTags")
+abline(0,1)
+mantel(GOslim_bray_dist, mitags_bray)
+
+plot(IPR_bray_dist, mitags_bray, main = "IPR vs miTags")
+abline(0,1)
+mantel(IPR_bray_dist, mitags_bray)
+
+
+```
+
+**Observations**: 
+  - Good correlation between Gene & Simka and Gene & miTags distance matrices
+  - Bad correlation between Function & Simka and Function & miTags distance matrices
+
+
