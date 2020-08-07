@@ -1,0 +1,281 @@
+---
+title: "ICM catalog metagenomic analysis"
+author: "Sergio Rodriguez"
+date: "8/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r vegan}
+library(vegan)
+```
+
+##Functional tables
+
+###Building the distance matrices
+
+```{r funct_dist_mat}
+#COG
+icm_cog_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_COG.lengthNorm.metaGsizeNorm.counts.tbl",
+                                header = TRUE, row.names = 1)
+icm_cog_metaGsize <- t(icm_cog_metaGsize)
+icm_cog_metaGsize_bray <- vegdist(icm_cog_metaGsize, method = "bray")
+
+icm_cog_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_COG.lengthNorm.SCGnorm.counts.tbl", 
+                          header = TRUE, row.names = 1)
+icm_cog_scg <- t(icm_cog_scg)
+icm_cog_scg_bray <- vegdist(icm_cog_scg, method = "bray")
+
+#KEGG
+icm_kegg_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_KEGG.ko.lengthNorm.metaGsizeNorm.counts.tbl", header = TRUE, row.names = 1)
+icm_kegg_metaGsize <- t(icm_kegg_metaGsize)
+icm_kegg_metaGsize_bray <- vegdist(icm_kegg_metaGsize, method = "bray")
+
+icm_kegg_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_KEGG.ko.lengthNorm.SCGnorm.counts.tbl", 
+                          header = TRUE, row.names = 1)
+icm_kegg_scg <- t(icm_kegg_scg)
+icm_kegg_scg_bray <- vegdist(icm_kegg_scg, method = "bray")
+
+#PFAM
+icm_pfam_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_pfam.lengthNorm.metaGsizeNorm.counts.tbl",
+                                header = TRUE, row.names = 1)
+icm_pfam_metaGsize <- t(icm_pfam_metaGsize)
+icm_pfam_metaGsize_bray <- vegdist(icm_pfam_metaGsize, method = "bray")
+
+icm_pfam_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_pfam.lengthNorm.SCGnorm.counts.tbl", 
+                          header = TRUE, row.names = 1)
+icm_pfam_scg <- t(icm_pfam_scg)
+icm_pfam_scg_bray <- vegdist(icm_pfam_scg, method = "bray")
+```
+
+
+###Dendograms
+
+```{r funct_dendo}
+#COG
+icm_cog_metaGsize_hclust <- hclust(icm_cog_metaGsize_bray, method = "average")
+plot(icm_cog_metaGsize_hclust, main = "COG metaGsize")
+icm_cog_scg_hclust <- hclust(icm_cog_scg_bray, method = "average")
+plot(icm_cog_scg_hclust, main = "COG SCG")
+
+#KEGG
+icm_kegg_metaGsize_hclust <- hclust(icm_kegg_metaGsize_bray, method = "average")
+plot(icm_kegg_metaGsize_hclust, main = "KEGG metaGsize")
+icm_kegg_scg_hclust <- hclust(icm_kegg_scg_bray, method = "average")
+plot(icm_kegg_scg_hclust, main = "KEGG SCG")
+
+#PFAM
+icm_pfam_metaGsize_hclust <- hclust(icm_pfam_metaGsize_bray, method = "average")
+plot(icm_pfam_metaGsize_hclust, main = "PFAM metaGsize")
+icm_pfam_scg_hclust <- hclust(icm_pfam_scg_bray, method = "average")
+plot(icm_pfam_scg_hclust, main = "PFAM SCG")
+```
+
+**Observations**: The dendograms corresponding to the same type of normalization are very similar, it also seems to be between the two types.
+
+
+###Heatmaps
+
+```{r funct_heatmaps}
+#COG
+heatmap(as.matrix(icm_cog_metaGsize_bray), Rowv = as.dendrogram(icm_cog_metaGsize_hclust), Colv = "Rowv", symm = TRUE,
+        main = "COG metaGsize")
+heatmap(as.matrix(icm_cog_scg_bray), Rowv = as.dendrogram(icm_cog_scg_hclust), Colv = "Rowv", symm = TRUE,
+        main = "COG SCG")
+
+#KEGG
+heatmap(as.matrix(icm_kegg_metaGsize_bray), Rowv = as.dendrogram(icm_kegg_metaGsize_hclust), Colv = "Rowv", symm = TRUE,
+        main = "KEGG metaGsize")
+heatmap(as.matrix(icm_kegg_scg_bray), Rowv = as.dendrogram(icm_kegg_scg_hclust), Colv = "Rowv", symm = TRUE,
+        main = "KEGG SCG")
+
+#PFAM
+heatmap(as.matrix(icm_pfam_metaGsize_bray), Rowv = as.dendrogram(icm_pfam_metaGsize_hclust), Colv = "Rowv", symm = TRUE,
+        main = "PFAM metaGsize")
+heatmap(as.matrix(icm_pfam_scg_bray), Rowv = as.dendrogram(icm_pfam_scg_hclust), Colv = "Rowv", symm = TRUE,
+        main = "PFAM SCG")
+```
+
+
+###NMDS
+
+```{r funct_nmds}
+#COG
+icm_cog_metaGsize_nmds <- monoMDS(icm_cog_metaGsize_bray)
+icm_cog_metaGsize_nmds
+plot(icm_cog_metaGsize_nmds, main = "COG metaGsize")
+icm_cog_scg_nmds <- monoMDS(icm_cog_scg_bray)
+icm_cog_scg_nmds
+plot(icm_cog_scg_nmds, main = "COG SCG")
+
+#KEGG
+icm_kegg_metaGsize_nmds <- monoMDS(icm_kegg_metaGsize_bray)
+icm_kegg_metaGsize_nmds
+plot(icm_kegg_metaGsize_nmds, main = "KEGG metaGsize")
+icm_kegg_scg_nmds <- monoMDS(icm_kegg_scg_bray)
+icm_kegg_scg_nmds
+plot(icm_kegg_scg_nmds, main = "KEGG SCG")
+
+#PFAM
+icm_pfam_metaGsize_nmds <- monoMDS(icm_pfam_metaGsize_bray)
+icm_pfam_metaGsize_nmds
+plot(icm_pfam_metaGsize_nmds, main = "PFAM metaGsize")
+icm_pfam_scg_nmds <- monoMDS(icm_pfam_scg_bray)
+icm_pfam_scg_nmds
+plot(icm_pfam_scg_nmds, main = "PFAM SCG")
+```
+
+**Observations**: Low stress, dendogram's clusters are identified in the plots.
+
+
+###Mantel tests
+
+Mantel tests for the correlation of functional matrices. The goal is to test the correalation between and within the **metaGsize** and the **SCG** normalizations from **COG**, **KEGG** and **PFAM** tables.
+
+
+```{r funct_mantel}
+#metaGsize vs SCG
+plot(icm_cog_metaGsize_bray, icm_cog_scg_bray, main = "COG: metaGsize vs SCG")
+abline(0,1)
+mantel(icm_cog_metaGsize_bray, icm_cog_scg_bray)
+plot(icm_kegg_metaGsize_bray, icm_kegg_scg_bray, main = "KEGG: metaGsize vs SCG")
+abline(0,1)
+mantel(icm_kegg_metaGsize_bray, icm_kegg_scg_bray)
+plot(icm_pfam_metaGsize_bray, icm_pfam_scg_bray, main = "PFAM: metaGsize vs SCG")
+abline(0,1)
+mantel(icm_pfam_metaGsize_bray, icm_pfam_scg_bray)
+
+#metaGsize
+plot(icm_cog_metaGsize_bray, icm_kegg_metaGsize_bray, main = "COG metaGsize vs KEGG metaGsize")
+abline(0,1)
+mantel(icm_cog_metaGsize_bray, icm_kegg_metaGsize_bray)
+plot(icm_cog_metaGsize_bray, icm_pfam_metaGsize_bray, main = "COG metaGsize vs PFAM metaGsize")
+abline(0,1)
+mantel(icm_cog_metaGsize_bray, icm_pfam_metaGsize_bray)
+plot(icm_pfam_metaGsize_bray, icm_kegg_metaGsize_bray, main = "PFAM metaGsize vs KEGG metaGsize")
+abline(0,1)
+mantel(icm_pfam_metaGsize_bray, icm_kegg_metaGsize_bray)
+
+#SCG
+plot(icm_cog_scg_bray, icm_kegg_scg_bray, main = "COG SCG vs KEGG SCG")
+abline(0,1)
+mantel(icm_cog_scg_bray, icm_kegg_scg_bray)
+plot(icm_cog_scg_bray, icm_pfam_scg_bray, main = "COG SCG vs PFAM SCG")
+abline(0,1)
+mantel(icm_cog_scg_bray, icm_pfam_scg_bray)
+plot(icm_pfam_scg_bray, icm_kegg_scg_bray, main = "PFAM SCG vs KEGG SCG")
+abline(0,1)
+mantel(icm_pfam_scg_bray, icm_kegg_scg_bray)
+```
+
+
+**Observations**: Very good correlation in all the tests.
+
+
+***
+
+
+##Gene tables
+
+
+###Building the distance matrices
+
+```{r gene_dist_mat}
+icm_gene_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_gene.length.SCG.Norm.counts.tbl", header = TRUE, row.names = 1)
+icm_gene_scg <- t(icm_gene_scg)
+icm_gene_scg_bray <- vegdist(icm_gene_scg, method = "bray")
+icm_gene_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_gene.lengthNorm.metaGsizeGbNorm.counts.tbl", header = TRUE, row.names = 1)
+icm_gene_metaGsize <- t(icm_gene_metaGsize)
+icm_gene_metaGsize_bray <- vegdist(icm_gene_metaGsize, method = "bray")
+icm_gene_tpm <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_gene.TPM.tbl", header = TRUE, row.names = 1)
+icm_gene_tpm <- t(icm_gene_tpm)
+icm_gene_tpm_bray <- vegdist(icm_gene_tpm, method = "bray")
+```
+
+
+###Dendograms
+
+```{r gene_dendo}
+icm_gene_scg_hclust <- hclust(icm_gene_scg_bray, method = "average")
+plot(icm_gene_scg_hclust, main = "Gene SCG")
+
+icm_gene_metaGsize_hclust <- hclust(icm_gene_metaGsize_bray, method = "average")
+plot(icm_gene_metaGsize_hclust, main = "Gene metaGsize")
+
+icm_gene_tpm_hclust <- hclust(icm_gene_tpm_bray, method = "average")
+plot(icm_gene_tpm_hclust, main = "Gene TPM")
+```
+
+**Observations**: metaGsize and TPM dendograms are identical and they are similar to the SCG one.
+
+
+###Heatmap
+
+```{r gene_heatmaps}
+heatmap(as.matrix(icm_gene_scg_bray), Rowv = as.dendrogram(icm_gene_scg_hclust), Colv = "Rowv", symm = TRUE, main = "Gene SCG")
+heatmap(as.matrix(icm_gene_metaGsize_bray), Rowv = as.dendrogram(icm_gene_metaGsize_hclust), Colv = "Rowv", symm = TRUE, main = "Gene metaGsize")
+heatmap(as.matrix(icm_gene_tpm_bray), Rowv = as.dendrogram(icm_gene_tpm_hclust), Colv = "Rowv", symm = TRUE, main = "Gene TPM")
+```
+
+**Observations**: Almost identical heatmaps for metaGsize and TPM normalizations.
+
+
+###NMDS
+
+```{r gene_nmds}
+icm_gene_scg_nmds <- monoMDS(icm_gene_scg_bray)
+icm_gene_scg_nmds
+plot(icm_gene_scg_nmds, main = "Gene SCG NMDS")
+icm_gene_metaGsize_nmds <- monoMDS(icm_gene_metaGsize_bray)
+icm_gene_metaGsize_nmds
+plot(icm_gene_metaGsize_nmds, main = "Gene metaGsize NMDS")
+icm_gene_tpm_nmds <- monoMDS(icm_gene_tpm_bray)
+icm_gene_tpm_nmds
+plot(icm_gene_tpm_nmds, main = "Gene TPM NMDS")
+```
+
+
+###Mantel tests for gene distance matrices
+
+```{r gene_mantel}
+plot(icm_gene_scg_bray, icm_gene_metaGsize_bray, main = "Gene SCG vs metaGsize")
+abline(0,1)
+mantel(icm_gene_scg_bray, icm_gene_metaGsize_bray)
+
+plot(icm_gene_scg_bray, icm_gene_tpm_bray, main = "Gene SCG vs TPM")
+abline(0,1)
+mantel(icm_gene_scg_bray, icm_gene_tpm_bray)
+
+plot(icm_gene_metaGsize_bray, icm_gene_tpm_bray, main = "Gene metaGsize vs TPM")
+abline(0,1)
+mantel(icm_gene_metaGsize_bray, icm_gene_tpm_bray)
+```
+
+**Observations**: Very high correlation between all the gene matrices.
+
+
+***
+
+##Mantel tests for funtional and gene distance matrices
+
+
+Mantel tests for some of the matrices. No need to check all the cases due to the fact that it has been observed that functional matices are highly correlated as well as the gene matrices.
+
+```{r fucnt_gene_mantel}
+plot(icm_cog_metaGsize_bray, icm_gene_metaGsize_bray, main = "COG metaGsize vs Gene metaGsize")
+abline(0,1)
+mantel(icm_cog_metaGsize_bray, icm_gene_metaGsize_bray)
+
+plot(icm_kegg_scg_bray, icm_gene_scg_bray, main = "KEGG SCG vs Gene SCG")
+abline(0,1)
+mantel(icm_kegg_scg_bray, icm_gene_scg_bray)
+
+plot(icm_pfam_metaGsize_bray, icm_gene_tpm_bray, main = "PFAM metaGsize vs Gene TPM")
+abline(0,1)
+mantel(icm_pfam_metaGsize_bray, icm_gene_tpm_bray)
+```
+
+**Observations**: High correlation between the functional and gene distance matrices.
