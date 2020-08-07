@@ -4,7 +4,10 @@ Scripts and files used for metagenomic analysis
 
 ## Repository content:
 
-- **Metagenomic analysis**: Folder that contains the R Markdown and the HTML and PDF outputs
+- **Metagenomic analysis**: Folder that contains the R Markdown and the HTML and PDF outputs:
+
+  - *"Metagenomic_analysis"*: Alex's version tables
+  - *"Metagenomic_alalysis_ICM"*: ICM catalog tables
 
 - **Tables**: Folder that contain some of the tables used for the analysis. The sample names are already changed for the better ones to interpret.
 
