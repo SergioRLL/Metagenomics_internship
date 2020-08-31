@@ -1,0 +1,689 @@
+---
+title: "Description and comparison of Alex and ICM EMOSE datasets"
+author: "Sergio Rodriguez"
+date: "8/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+**Description and comparison of genes, functions and taxon present in each dataset. The idea is to cluster them in order to see which ones are more abundant in the datasets and in which samples.**
+
+**In addition the aim is also to compare types samples using the gene, function and taxon abundances. Taking the sample characteristics into consideration, it seems to be a good idea to use the volume, the method (on sterivex or on membrane), and size fraction (filter size collecting the microorganisms).**
+
+##Gene abundance tables
+
+###vAlex
+
+Read tables:
+
+```{r gene_tables_alex}
+#Gene abundance tables (vAlex)
+a_gene_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene.lengthNorm.metaGsizeGbNorm.counts.tbl", header = TRUE, sep = "\t")
+a_gene_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene_lengthNorm_SingleCopyGeneNorm_counts.tbl", header = TRUE, sep = "\t")
+a_gene_counts <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene_lengthNorm_counts.tbl", header = TRUE, sep = "\t")
+a_gene_tpm <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_gene_TPM.tbl", header = TRUE, sep = "\t")
+```
+
+
+####Gene length normaliation
+
+```{r gene_length_alex}
+library(hash)
+a_gene_counts_rowsums <- rowSums(a_gene_counts)
+a_gene_counts_rowsums <- sort(a_gene_counts_rowsums, decreasing = T)
+names_a_gene_counts <- names(head(a_gene_counts_rowsums, 10))
+print(names_a_gene_counts)
+h <- hash()
+for (i in names_a_gene_counts){
+  # print(sort(a_gene_counts[i,], decreasing = T))
+  if (is.null(h[[i]])){
+    h[[i]] <- 1
+  }
+  else {
+    h[[i]] <- h[[i]] + 1
+  }
+}
+```
+
+
+####TPM normalization
+
+```{r gene_tpm_alex}
+a_gene_tpm_rowsums <- rowSums(a_gene_tpm)
+a_gene_tpm_rowsums <- sort(a_gene_tpm_rowsums, decreasing = T)
+names_a_gene_tpm <- names(head(a_gene_tpm_rowsums, 10))
+print(names_a_gene_tpm)
+for (i in names_a_gene_tpm){
+  # print(sort(a_gene_tpm[i,], decreasing = T))
+  if (is.null(h[[i]])){
+    h[[i]] <- 1
+  }
+  else {
+    h[[i]] <- h[[i]] + 1
+  }
+}
+```
+
+####Gene length + single copy genes normalization
+
+```{r gene_scg_alex}
+a_gene_scg_rowsums <- rowSums(a_gene_scg)
+a_gene_scg_rowsums <- sort(a_gene_scg_rowsums, decreasing = T)
+names_a_gene_scg <- names(head(a_gene_scg_rowsums, 10))
+print(names_a_gene_scg)
+for (i in names_a_gene_scg){
+  # print(sort(a_gene_scg[i,], decreasing = T))
+  if (is.null(h[[i]])){
+    h[[i]] <- 1
+  }
+  else {
+    h[[i]] <- h[[i]] + 1
+  }
+}
+```
+
+
+####Gene length + metagenome size normalization
+
+```{r gene_metaGsize_alex}
+a_gene_metaGsize_rowsums <- rowSums(a_gene_metaGsize)
+a_gene_metaGsize_rowsums <- sort(a_gene_metaGsize_rowsums, decreasing = T)
+names_a_gene_metaGsize <- names(head(a_gene_metaGsize_rowsums, 10))
+print(names_a_gene_metaGsize)
+for (i in names_a_gene_metaGsize){
+  # print(sort(a_gene_metaGsize[i,], decreasing = T))
+  if (is.null(h[[i]])){
+    h[[i]] <- 1
+  }
+  else {
+    h[[i]] <- h[[i]] + 1
+  }
+}
+```
+
+Most abundant genes:
+
+```{r abundant_genes_alex}
+print(h)
+print(sort(values(h), decreasing = T))
+```
+
+**Observations**: The most abundant genes are the ones corresponding to the IDs (sorted order in every normalization strategy are indicated):
+
+Appeared in every normalization:
+
+- **EMOSE-GC_003931252**: SCG: 6th | GL, TPM & metaGsize: 7th
+- **EMOSE-GC_004002615**: ALL: 1st
+- **EMOSE-GC_006690704**: GL, TPM & metaGsize: 3rd | SCG: 7th
+- **EMOSE-GC_006712715**: GL, TPM & metaGsize: 4th | SCG: 5th
+- **EMOSE-GC_007635408**: GL, TPM & metaGsize: 5th | SCG: 3rd
+- **EMOSE-GC_015482384**: GL, TPM & metaGsize: 6th | SCG: 4th
+- **EMOSE-GC_019872559**: ALL: 2nd
+
+Appeared in 3 normalization strategies:
+
+- **EMOSE-GC_007222114**: SCG: 8th | TPM & metaGsize: 10th 
+- **EMOSE-GC_007499787**: GL / TPM / metaGsize: 8th
+- **EMOSE-GC_013550940**: GL / TPM / metaGsize: 9th
+
+Appeared in 1 normalization strategy:
+
+- **EMOSE-GC_010900771**: SCG
+- **EMOSE-GC_013314057**: GL
+- **EMOSE-GC_021932777**: SCG
+
+```{r free_gene_alex_tables}
+rm(a_gene_counts)
+rm(a_gene_metaGsize)
+rm(a_gene_scg)
+rm(a_gene_tpm)
+```
+
+
+###vICM
+
+Read tables:
+
+```{r gene_tables_icm}
+icm_gene_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_gene.lengthNorm.metaGsizeGbNorm.counts.tbl", header = TRUE, row.names = 1)
+icm_gene_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_gene.length.SCG.Norm.counts.tbl", header = TRUE, row.names = 1)
+icm_gene_TPM <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_gene.TPM.tbl", header = TRUE, row.names = 1)
+```
+
+####Gene length + metagenome size normaliation
+
+```{r gene_length_icm}
+icm_gene_metaGsize_rowsums <- rowSums(icm_gene_metaGsize)
+icm_gene_metaGsize_rowsums <- sort(icm_gene_metaGsize_rowsums, decreasing = T)
+names_icm_gene_metaGsize <- names(head(icm_gene_metaGsize_rowsums, 10))
+print(names_icm_gene_metaGsize)
+k <- hash()
+for (i in names_icm_gene_metaGsize){
+  # print(sort(icm_gene_metaGsize[i,], decreasing = T))
+  if (is.null(k[[i]])){
+    k[[i]] <- 1
+  }
+  else {
+    k[[i]] <- k[[i]] + 1
+  }
+}
+rm(icm_gene_metaGsize_rowsums)
+```
+
+
+####Gene length + single copy genes normalization
+
+```{r}
+icm_gene_scg_rowsums <- rowSums(icm_gene_scg)
+icm_gene_scg_rowsums <- sort(icm_gene_scg_rowsums, decreasing = T)
+names_icm_gene_scg <- names(head(icm_gene_scg_rowsums, 10))
+print(names_icm_gene_scg)
+for (i in names_icm_gene_scg){
+  # print(sort(icm_gene_scg[i,], decreasing = T))
+  if (is.null(k[[i]])){
+    k[[i]] <- 1
+  }
+  else {
+    k[[i]] <- k[[i]] + 1
+  }
+}
+rm(icm_gene_scg_rowsums)
+```
+
+
+####TPM normalization
+
+```{r}
+icm_gene_tpm_rowsums <- rowSums(icm_gene_TPM)
+icm_gene_tpm_rowsums <- sort(icm_gene_tpm_rowsums, decreasing = T)
+names_icm_gene_tpm <- names(head(icm_gene_tpm_rowsums, 10))
+print(names_icm_gene_tpm)
+for (i in names_icm_gene_tpm){
+  # print(sort(icm_gene_TPM[i,], decreasing = T))
+  if (is.null(k[[i]])){
+    k[[i]] <- 1
+  }
+  else {
+    k[[i]] <- k[[i]] + 1
+  }
+}
+rm(icm_gene_tpm_rowsums)
+```
+
+
+```{r abundant_genes_icm}
+print(k)
+print(sort(values(k), decreasing = T))
+```
+
+
+**Observations**: The most abundant genes are the ones corresponding to the IDs (sorted order in every normalization strategy are indicated):
+
+Appeared in every normalization:
+
+-**ERR2098386.k127_1505500_pro_250027**: SCG: 3rd | metaGsize & TPM: 7th
+-**ERR2098394.k127_1034816_pro_17671**: SCG: 7th | metaGsize & TPM: 10th
+-**ERR2098396.k127_721595_mgm_170933**: SCG: 5th | metaGsize & TPM: 9th
+-**ERR2098399.k127_819407_mgm_333911**: ALL: 1st
+-**ERR2098407.k127_1241379_pro_200236**: SCG: 2nd | metaGsize & TPM: 3rd
+-**ERR2098410.k127_1415752_pro_346027**: SCG: 4th | metaGsize & TPM: 8th
+
+Appeared in 2 normalization strategies:
+
+-**ERR2098391.k127_1569746_mgm_650554**: metaGsize & TPM: 6th
+-**ERR2098399.k127_1186120_mgm_836351**: metaGsize & TPM: 5th
+-**ERR2098403.k127_922860_pro_439636**: metaGsize & TPM: 2nd
+-**ERR2098410.k127_2068730_pro_132813**: metaGsize & TPM: 4th
+
+Appeared in 1 normalization strategy:
+
+-**ERR2098386.k127_2631662_pro_282878**: SCG: 10th
+-**ERR2098387.k127_1956784_pro_92348**: SCG: 8th
+-**ERR2098387.k127_805203_mgm_103396**: SCG: 6th
+-**ERR2098406.k127_1546662_pro_57189**: SCG: 9th
+
+
+```{r free_gene_icm_tables}
+rm(icm_gene_metaGsize)
+rm(icm_gene_scg)
+rm(icm_gene_TPM)
+```
+
+
+***
+
+##Function abundance tables
+
+###vAlex
+
+```{r funct_tables_alex}
+#Function abundace tables (vAlex)
+a_funct_GO <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/ERP112966_GO_abundances_v4.1.tsv", header = TRUE, sep = "\t", row.names = 1)
+a_funct_GOslim <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/ERP112966_GO-slim_abundances_v4.1.tsv", header = TRUE, sep = "\t", row.names = 1)
+a_funct_IPR <- read.table(file = "/home/srllana/R/Metagenomics_internship/Tables/ERP112966_IPR_abundances_v4.1.tsv", header = TRUE, sep = "\t", row.names = 1)
+```
+
+
+####GO
+
+```{r funct_go_alex}
+a_funct_GO_nodescription <- a_funct_GO
+a_funct_GO_nodescription$description <- NULL
+a_funct_GO_nodescription$category <- NULL
+
+a_funct_GO_rowsums <- rowSums(a_funct_GO_nodescription)
+a_funct_GO_rowsums <- sort(a_funct_GO_rowsums, decreasing = T)
+names_a_funct_GO <- names(head(a_funct_GO_rowsums, 10))
+print(names_a_funct_GO)
+l <- hash()
+for (i in names_a_funct_GO){
+  # print(sort(a_funct_GO_nodescription[i,], decreasing = T))
+  if (is.null(l[[i]])){
+    l[[i]] <- 1
+  }
+  else {
+    l[[i]] <- l[[i]] + 1
+  }
+}
+```
+
+
+####GO slim
+
+```{r funct_goslim_alex}
+a_funct_GOslim_nodescription <- a_funct_GOslim
+a_funct_GOslim_nodescription$description <- NULL
+a_funct_GOslim_nodescription$category <- NULL
+
+a_funct_GOslim_rowsums <- rowSums(a_funct_GOslim_nodescription)
+a_funct_GOslim_rowsums <- sort(a_funct_GOslim_rowsums, decreasing = T)
+names_a_funct_GOslim <- names(head(a_funct_GOslim_rowsums, 10))
+print(names_a_funct_GOslim)
+for (i in names_a_funct_GOslim){
+  # print(sort(a_funct_GOslim_nodescription[i,], decreasing = T))
+  if (is.null(l[[i]])){
+    l[[i]] <- 1
+  }
+  else {
+    l[[i]] <- l[[i]] + 1
+  }
+}
+```
+
+
+####Interpro
+
+```{r funct_IPR_alex}
+a_funct_IPR_nodescription <- a_funct_IPR
+a_funct_IPR_nodescription$description <- NULL
+
+a_funct_IPR_rowsums <- rowSums(a_funct_IPR_nodescription)
+a_funct_IPR_rowsums <- sort(a_funct_IPR_rowsums, decreasing = T)
+names_a_funct_IPR <- names(head(a_funct_IPR_rowsums, 10))
+print(names_a_funct_IPR)
+
+# for (i in names_a_funct_IPR){
+#   print(sort(a_funct_IPR_nodescription[i,], decreasing = T))
+# }
+
+```
+
+```{r abundant_funct_alex}
+print(l)
+print(sort(values(l), decreasing = T))
+```
+
+
+**Observations**: The most abundant functions according to GO and IPR terms are the following ones:
+
+Present in both GO and GO slim tables.
+
+-**GO:0000166**: **Nucleotide binding** (molecular function): Interacting selectively and non-covalently with a nucleotide, any compound consisting of a nucleoside that is esterified with (ortho)phosphate or an oligophosphate at any hydroxyl group on the ribose or deoxyribose.
+
+-**GO:0003676**: **Nucleic acid binding** (molecular function): Interacting selectively and non-covalently with any nucleic acid. 
+
+-**GO:0003824**: **Catalytic activity** (molecular function): Catalysis of a biochemical reaction at physiological temperatures. In biologically catalyzed reactions, the reactants are known as substrates, and the catalysts are naturally occurring macromolecular substances known as enzymes. Enzymes possess specific binding sites for substrates, and are usually composed wholly or largely of protein, but RNA that has catalytic activity (ribozyme) is often also regarded as enzymatic. 
+
+-**GO:0016491**: **Oxidoreductase activity** (molecular function): Catalysis of an oxidation-reduction (redox) reaction, a reversible chemical reaction in which the oxidation state of an atom or atoms within a molecule is altered. One substrate acts as a hydrogen or electron donor and becomes oxidized, while the other acts as hydrogen or electron acceptor and becomes reduced.
+
+
+Present in one of the GO tables:
+
+
+-**GO:0003677**: **DNA binding** (molecular function): Any molecular function by which a gene product interacts selectively and non-covalently with DNA (deoxyribonucleic acid).
+
+-**GO:0003723**: **RNA binding** (molecular function): Interacting selectively and non-covalently with an RNA molecule or a portion thereof. 
+
+-**GO:0003735**: **Structural constituent of ribosome** (molecular function): The action of a molecule that contributes to the structural integrity of the ribosome. 
+
+-**GO:0006807**: **Nitrogen compound metabolic process** (biological process): The chemical reactions and pathways involving organic or inorganic compounds that contain nitrogen. 
+
+-**GO:0006810**: **Transport** (biological process): The directed movement of substances (such as macromolecules, small molecules, ions) or cellular components (such as complexes and organelles) into, out of or within a cell, or between cells, or within a multicellular organism by means of some agent such as a transporter, pore or motor protein. 
+
+-**GO:0008152**: **Metabolic process** (biological process): The chemical reactions and pathways, including anabolism and catabolism, by which living organisms transform chemical substances. Metabolic processes typically transform small molecules, but also include macromolecular processes such as DNA repair and replication, and protein synthesis and degradation. 
+
+-**GO:0009058**: **Biosynthetic process** (biological process):  The chemical reactions and pathways resulting in the formation of substances; typically the energy-requiring part of metabolism in which simpler substances are transformed into more complex ones. 
+
+-**GO:0016020**: **Membrane** (cellular component): A lipid bilayer along with all the proteins and protein complexes embedded in it an attached to it. 
+
+-**GO:0016021**: **Integral component of membrane** (cellular component): The component of a membrane consisting of the gene products and protein complexes having at least some part of their peptide sequence embedded in the hydrophobic region of the membrane.
+
+-**GO:0016787**: **Hydrolise activity** (molecular function): Catalysis of the hydrolysis of various bonds, e.g. C-O, C-N, C-C, phosphoric anhydride bonds, etc. Hydrolase is the systematic name for any enzyme of EC class 3. 
+
+-**GO:0043167**: **Ion binding** (molecular function): Interacting selectively and non-covalently with ions, charged atoms or groups of atoms.
+
+-**GO:0044281**: **Small molecule metabolic process** (biological process): The chemical reactions and pathways involving small molecules, any low molecular weight, monomeric, non-encoded molecule. 
+
+
+According to Interpro (IPR):
+
+
+-**IPR013785**: **Aldolase-type TIM barrel** (homologous superfamily type): This entry represents the TIM beta/alpha barrel found in aldolase and in related proteins. This TIM barrel usually covers the entire protein structure. Proteins containing this TIM barrel domain include class I aldolases, class I DAHP synthases, class II fructose-bisphosphate aldolases (FBP aldolases), and 5-aminolaevulinate dehydratase (a hybrid of classes I and II aldolases). GO terms: catalytic activity (*GO:0003824*).
+
+-**IPR014729**: **Rossmann-like alpha/beta/alpha sandwich fold** (homologous superfamily type): This superfamily represents domains related by a common ancestor that have a Rossmann-like, 3-layer, alpha/beta/alpha sandwich fold.
+
+-**IPR002347**: **Short-chain dehydrogenase/reductase SDR** (family type): The short-chain dehydrogenases/reductases family (SDR) is a very large family of enzymes, most of which are known to be NAD- or NADP-dependent oxidoreductases. 
+
+-**IPR013783**: **Immunoglobulin-like fold** (homologous superfamily type): This superfamily represents domains with an immunoglobulin-like (Ig-like) fold, which consists of a beta-sandwich of seven or more strands in two sheets with a Greek-key topology. Ig-like domains are one of the most common protein modules found in animals, occurring in a variety of different proteins. These domains are often involved in interactions, commonly with other Ig-like domains via their beta-sheets.
+
+-**IPR017871**: **ABC transporter, conserved site** (conserved site type): ABC transporters belong to the ATP-Binding Cassette (ABC) superfamily, which uses the hydrolysis of ATP to energise diverse biological systems. 
+
+-**IPR012337**: **Ribonuclease H-like superfamily** (homologous superfamily type): The catalytic domain of several polynucleotidyl transferases share a similar structure, consisting of a 3-layer alpha/beta/alpha fold that contains mixed beta sheets, suggesting that they share a similar mechanism of catalysis. 
+
+-**IPR017849**: REMOVED ENTRY (Alkaline phosphatase-like, alpha/beta/alpha)
+
+-**IPR000531**: **TonB-dependent receptor-like, beta-barrel** (domain type): In Escherichia coli the TonB protein interacts with outer membrane receptor proteins that carry out high-affinity binding and energy-dependent uptake of specific substrates into the periplasmic space.
+
+-**IPR000515**: **ABC transporter type 1, transmembrane domain MetI-like** (domain type): ABC transporters are minimally constituted of two conserved regions: a highly conserved ATP binding cassette (ABC) and a less conserved transmembrane domain (TMD).
+
+-**IPR014710**: **RmlC-like jelly roll fold** (homologous superfamily type): RmlC (deoxythymidine diphosphates-4-dehydrorhamnose 3,5-epimerase) is a mainly beta class protein with a jelly roll-like topology. It is a dTDP-sugar isomerase enzyme involved in the synthesis of L-rhamnose, a saccharide required for the virulence of some pathogenic bacteria. This entry represents the domain with the jelly roll-like fold.
+
+
+###vICM
+
+Read tables:
+
+```{r funct_tables_icm}
+#Function abundace tables (vICM)
+icm_funct_cog_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_COG.lengthNorm.metaGsizeNorm.counts.tbl", header = TRUE, row.names = 1)
+icm_funct_cog_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_COG.lengthNorm.SCGnorm.counts.tbl", header = TRUE, row.names = 1)
+icm_funct_kegg_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_KEGG.ko.lengthNorm.metaGsizeNorm.counts.tbl", header = TRUE, row.names = 1)
+icm_funct_kegg_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_KEGG.ko.lengthNorm.SCGnorm.counts.tbl", header = TRUE, row.names = 1)
+icm_funct_pfam_metaGsize <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_pfam.lengthNorm.metaGsizeNorm.counts.tbl", header = TRUE, row.names = 1)
+icm_funct_pfam_scg <- read.table(file = "/home/srllana/R/Tables/EMOSE-GC_ICM_250bp_pfam.lengthNorm.SCGnorm.counts.tbl", header = TRUE, row.names = 1)
+```
+
+
+####COG
+
+```{r funct_cog_metaGsize_icm}
+icm_funct_cog_metaGsize_rowsums <- rowSums(icm_funct_cog_metaGsize)
+icm_funct_cog_metaGsize_rowsums <- sort(icm_funct_cog_metaGsize_rowsums, decreasing = T)
+names_icm_funct_cog_metaGsize <- names(head(icm_funct_cog_metaGsize_rowsums, 10))
+print(names_icm_funct_cog_metaGsize)
+m <- hash()
+for (i in names_icm_funct_cog_metaGsize){
+  # print(sort(icm_funct_cog_metaGsize[i,], decreasing = T))
+  if (is.null(m[[i]])){
+    m[[i]] <- 1
+  }
+  else {
+    m[[i]] <- m[[i]] + 1
+  }
+}
+```
+
+
+```{r funct_cog_scg_icm}
+icm_funct_cog_scg_rowsums <- rowSums(icm_funct_cog_scg)
+icm_funct_cog_scg_rowsums <- sort(icm_funct_cog_scg_rowsums, decreasing = T)
+names_icm_funct_cog_scg <- names(head(icm_funct_cog_scg_rowsums, 10))
+print(names_icm_funct_cog_scg)
+for (i in names_icm_funct_cog_scg){
+  # print(sort(icm_funct_cog_scg[i,], decreasing = T))
+  if (is.null(m[[i]])){
+    m[[i]] <- 1
+  }
+  else {
+    m[[i]] <- m[[i]] + 1
+  }
+}
+```
+
+
+```{r abundant_funct_cog_icm}
+print(m)
+print(sort(values(m), decreasing = T))
+```
+
+**Observations**: The most abundant protein classifications according to COG are the following ones:
+
+
+Present in both normalization types:
+
+-**COG0451**: **WcaG**: Nucleoside-diphosphate-sugar epimerase [Cell wall/membrane/envelope biogenesis].
+
+-**COG0666**: **ANKYR**: Ankyrin repeat [Signal transduction mechanisms].
+
+-**COG1012**: **AdhE**: Acyl-CoA reductase or other NAD-dependent aldehyde dehydrogenase [Energy production and conversion].
+
+-**COG1028**: **FabG**: NAD(P)-dependent dehydrogenase, short-chain alcohol dehydrogenase family [Lipid transport and metabolism, Secondary metabolites biosynthesis, transport and catabolism, General function prediction only].
+
+-**COG1960**: **CaiA**: Acyl-CoA dehydrogenase related to the alkylation response protein AidB [Lipid transport and metabolism].
+
+-**COG3119**: **AslA**: Arylsulfatase A or related enzyme [Inorganic ion transport and metabolism].
+
+
+Present in one normalization type:
+
+-**COG0404**: **GcvT**: Glycine cleavage system T protein (aminomethyltransferase) [Amino acid transport and metabolism].
+
+-**COG0438**: **RfaB**: Glycosyltransferase involved in cell wall bisynthesis [Cell wall/membrane/envelope biogenesis].
+
+-**COG0515**: **SPS1**: Serine/threonine protein kinase [Signal transduction mechanisms].
+
+-**COG0697**: **RhaT**: Permease of the drug/metabolite transporter (DMT) superfamily [Carbohydrate transport and metabolism, Amino acid transport and metabolism, General function prediction only].
+
+-**COG1196**: **Smc**: Chromosome segregation ATPase [Cell cycle control, cell division, chromosome partitioning].
+
+-**COG5189**: **SFP1**: Putative transcriptional repressor regulating G2/M transition [Transcription / Cell division and chromosome partitioning].
+
+
+
+####KEGG
+
+```{r funct_kegg_metaGsize_icm}
+icm_funct_kegg_metaGsize_rowsums <- rowSums(icm_funct_kegg_metaGsize)
+icm_funct_kegg_metaGsize_rowsums <- sort(icm_funct_kegg_metaGsize_rowsums, decreasing = T)
+names_icm_funct_kegg_metaGsize <- names(head(icm_funct_kegg_metaGsize_rowsums, 10))
+print(names_icm_funct_kegg_metaGsize)
+n <- hash()
+for (i in names_icm_funct_kegg_metaGsize){
+  # print(sort(icm_funct_kegg_metaGsize[i,], decreasing = T))
+  if (is.null(n[[i]])){
+    n[[i]] <- 1
+  }
+  else {
+    n[[i]] <- n[[i]] + 1
+  }
+}
+```
+
+
+```{r funct_kegg_scg_icm}
+icm_funct_kegg_scg_rowsums <- rowSums(icm_funct_kegg_scg)
+icm_funct_kegg_scg_rowsums <- sort(icm_funct_kegg_scg_rowsums, decreasing = T)
+names_icm_funct_kegg_scg <- names(head(icm_funct_kegg_scg_rowsums, 10))
+print(names_icm_funct_kegg_scg)
+for (i in names_icm_funct_kegg_scg){
+  # print(sort(icm_funct_kegg_scg[i,], decreasing = T))
+  if (is.null(n[[i]])){
+    n[[i]] <- 1
+  }
+  else {
+    n[[i]] <- n[[i]] + 1
+  }
+}
+```
+
+```{r abundant_funct_kegg_icm}
+print(n)
+print(sort(values(n), decreasing = T))
+```
+
+**Observations**: The most abundant functions according to KEGG are the following ones:
+
+Present in both normalization types:
+
+-**K00525**: **E1.17.4.1A, nrdA, nrdE**: ribonucleoside-diphosphate reductase alpha chain [EC:1.17.4.1]. Pathways: Purine metabolism, Pyrimidine metabolism, Metabolic pathways.
+
+-**K01652**: **E2.2.1.6L, ilvB, ilvG, ilvI**: acetolactate synthase I/II/III large subunit [EC:2.2.1.6]. Pathways: Valine, leucine and isoleucine biosynthesis, Butanoate metabolism, C5-Branched dibasic acid metabolism, Pantothenate and CoA biosynthesis, Metabolic pathways, Biosynthesis of secondary metabolites, 2-Oxocarboxylic acid metabolism, Biosynthesis of amino acids.
+
+-**K01915**: **glnA, GLUL**: glutamine synthetase [EC:6.3.1.2]. Pathways: Arginine biosynthesis, Alanine, aspartate and glutamate metabolism, Glyoxylate and dicarboxylate metabolism, Nitrogen metabolism, Metabolic pathways, Microbial metabolism in diverse environments, Biosynthesis of amino acids, Two-component system, Necroptosis, Glutamatergic synapse, GABAergic synapse.
+
+-**K02335**: **polA**: DNA polymerase I [EC:2.7.7.7]. Pathways: DNA replication, Base excision repair, Nucleotide excision repair, Homologous recombination.
+
+-**K02337**: **dnaE**: DNA polymerase III subunit alpha [EC:2.7.7.7]. Pathways: DNA replication, Mismatch repair, Homologous recombination.
+
+-**K03043**: **rpoB**: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]. Pathway: RNA polymerase.
+
+-**K03046**: **rpoC**: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]. Pathway: RNA polymerase.
+
+
+Present in one normalization type:
+
+-**K00265**: **gltB**: glutamate synthase (NADPH) large chain [EC:1.4.1.13]. Pathways: Alanine, aspartate and glutamate metabolism, Nitrogen metabolism, Metabolic pathways, Biosynthesis of secondary metabolites, Microbial metabolism in diverse environments, Biosynthesis of amino acids.
+
+-**K00605**: **gcvT, AMT**: aminomethyltransferase [EC:2.1.2.10]. Pathways: Glycine, serine and threonine metabolism, Glyoxylate and dicarboxylate metabolism, One carbon pool by folate, Metabolic pathways, Biosynthesis of secondary metabolites, Carbon metabolism.
+
+-**K04043**: **dnaK, HSPA9**: molecular chaperone DnaK. Pathways: RNA degradation, Longevity regulating pathway - worm, Tuberculosis.
+
+-**K12132**: **prkC, stkP**: eukaryotic-like serine/threonine-protein kinase [EC:2.7.11.1].
+
+
+####PFAM
+
+```{r funct_pfam_metaGsize_icm}
+icm_funct_pfam_metaGsize_rowsums <- rowSums(icm_funct_pfam_metaGsize)
+icm_funct_pfam_metaGsize_rowsums <- sort(icm_funct_pfam_metaGsize_rowsums, decreasing = T)
+names_icm_funct_pfam_metaGsize <- names(head(icm_funct_pfam_metaGsize_rowsums, 10))
+print(names_icm_funct_pfam_metaGsize)
+o <- hash()
+for (i in names_icm_funct_pfam_metaGsize){
+  # print(sort(icm_funct_pfam_metaGsize[i,], decreasing = T))
+  if (is.null(o[[i]])){
+    o[[i]] <- 1
+  }
+  else {
+    o[[i]] <- o[[i]] + 1
+  }
+}
+```
+
+```{r funct_pfam_scg_icm}
+icm_funct_pfam_scg_rowsums <- rowSums(icm_funct_pfam_scg)
+icm_funct_pfam_scg_rowsums <- sort(icm_funct_pfam_scg_rowsums, decreasing = T)
+names_icm_funct_pfam_scg <- names(head(icm_funct_pfam_scg_rowsums, 10))
+print(names_icm_funct_pfam_scg)
+for (i in names_icm_funct_pfam_scg){
+  # print(sort(icm_funct_pfam_scg[i,], decreasing = T))
+  if (is.null(o[[i]])){
+    o[[i]] <- 1
+  }
+  else {
+    o[[i]] <- o[[i]] + 1
+  }
+}
+```
+
+```{r abundant_funct_pfam_icm}
+print(o)
+print(sort(values(o), decreasing = T))
+```
+
+
+**Observations**: The most abundant protein families according to PFAM are the following ones:
+
+Present in both normalization types:
+
+-**PF00005**: **ABC transporter**: ABC transporters for a large family of proteins responsible for translocation of a variety of compounds across biological membranes. ABC transporters are the largest family of proteins in many completely sequenced bacteria. 
+
+-**PF00501**: **AMP-binding enzyme**: A number of prokaryotic and eukaryotic enzymes, which appear to act via an ATP-dependent covalent binding of AMP to their substrate, share a region of sequence similarity.
+
+-**PF00528**: **Binding-protein-dependent transport system inner membrane component**: The members of this family have a variable number of transmembrane helices.
+
+-**PF07690**: **Major Facilitator Superfamily**: The major facilitator superfamily (MFS) of membrane proteins represents the largest family of secondary transporters with members from Archaea to Homo sapiens.
+
+
+Present in one normalization type:
+
+-**PF00078**: **Reverse transcriptase (RNA-dependent DNA polymerase)**: A reverse transcriptase gene is usually indicative of a mobile element such as a retrotransposon or retrovirus. Reverse transcriptases occur in a variety of mobile elements, including retrotransposons, retroviruses, group II introns, bacterial msDNAs, hepadnaviruses, and caulimoviruses.
+
+-**PF00096**: **Zinc finger, C2H2 type**: The C2H2 zinc finger is the classical zinc finger domain. The two conserved cysteines and histidines co-ordinate a zinc ion.
+
+-**PF00106**: **short chain dehydrogenase**: The short-chain dehydrogenases/reductases family (SDR) is a very large family of enzymes, most of which are known to be NAD- or NADP-dependent oxidoreductases. 
+
+-**PF00171**: **Aldehyde dehydrogenase family**: This family of dehydrogenases act on aldehyde substrates. Members use NADP as a cofactor. 
+
+-**PF00271**: **Helicase conserved C-terminal domain**: The Prosite family is restricted to DEAD/H helicases, whereas this domain family is found in a wide variety of helicases and helicase related proteins. It may be that this is not an autonomously folding unit, but an integral part of the helicase.
+
+-**PF00665**: **Integrase core domain**: Integrase mediates integration of a DNA copy of the viral genome into the host chromosome.
+
+-**PF00892**: **EamA-like transporter family**: This family includes many hypothetical membrane proteins of unknown function. 
+
+-**PF01266**: **FA dependent oxidoreductase**: This family includes various FAD dependent oxidoreductases.
+
+-**PF12796**: **Ankyrin repeats (3 copies)**: The ankyrin repeat is one of the most common protein-protein interaction motifs in nature.
+
+-**PF13465**: **Zinc-finger double domain**
+
+***
+
+##miTags
+
+Read table:
+
+```{r mitags_table}
+#Taxonomy abundace tables (mitags)
+# mitags <- read.table(file = "/home/srllana/R/Tables/EMOSE_mitags_table97.txt", header = TRUE, sep = "\t", row.names = 1)
+```
+
+
+```{r mitags}
+# mitags_rowsums <- rowSums(mitags)
+# mitags_rowsums <- sort(mitags_rowsums, decreasing = T)
+# names_mitags <- names(head(mitags_rowsums, 1000))
+# print(names_mitags)
+# 
+# # for (i in names_mitags){
+# #   print(sort(mitags[i,], decreasing = T))
+# # }
+```
+
+
+**Observations**: There seems to be a higher presence of some eukaryote species in the samples compared with other species of prokaryotes. However, it seems to be more diversity of prokaryotes than eukaryotes.
+
+Taking in into the account the **1000 most abundant taxons** of the dataset the distribution of species goes as follows:
+
+- 21.6% of the species correspond to **Eukaryota**
+- 78.4% of the species correspond to **Bacteria**
+- 0.4% of the species correspond to **Archaea** 
+
+Regarding Eukaryota domain: 
+
+- 55.55% correspond to **Opisthokonta**: From them, almost 90% belong to the *Crustacea* subphylum (*Arthropoda* phylum). From them 58% belong to the *Calanoida* and 27% to the *Cyclopoida* order. 
+- 30.1% correspond to **SAR**: From them 58.5% belong to the *Alveolata* infrakingdom, 33.85% to the *Stramenopiles* and 7.69% to the *Rhizaria*.
+- 10.65% correspond to **Haptophyta**: From them 65.22% belong to the *Prymnesiales* order and 17.4% to the *Phaeocystis* genus.
+
+Regarding Bacteria domain:
+
+- 72.44% correspond to **Proteobacteria**: From them 71.33% belong to *Alphaproteobacteria*, 23.89% to *Gammaproteobacteria* and 2.48% to *Betaproteobacteria*.
+- 18.08% correspond to **Cyanobacteria**: From them 61% belong to *Chloroplast* and 39% belong to *Cyanobacteria*.
+- 5.26% correspond to **Bacteroidetes**: From them 85.37% belong to *Flavobacteriia*.
+- 2.05% correspond to **Verrucomicrobia**: From them 62.5% belong to *Opitutae*, 18.75% belong to *Verrucomicrobiae*.
+
+**Observations**: There seems to be a higher abundance of Eukaryotes in samples of filters of size 20μm while Prokaryotes are more abundant in 0.22-3μm filtered samples. 
